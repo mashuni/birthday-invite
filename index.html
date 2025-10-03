@@ -312,94 +312,101 @@
     </div>
 
     <script>
-        // Customization functions
-        function updateNameFont() {
-            const font = document.getElementById('nameFont').value;
-            document.getElementById('birthdayName').style.fontFamily = font;
+    // Customization functions
+    function updateNameFont() {
+        const font = document.getElementById('nameFont').value;
+        document.getElementById('birthdayName').style.fontFamily = font;
+    }
+
+    function updateNameColor() {
+        const color = document.getElementById('nameColor').value;
+        document.getElementById('birthdayName').style.color = color;
+    }
+
+    function updateTextColor() {
+        const color = document.getElementById('textColor').value;
+        document.getElementById('celebrationText').style.color = color;
+    }
+
+    function updateName() {
+        const name = document.getElementById('nameInput').value;
+        if (name) {
+            document.getElementById('birthdayName').textContent = name + "'s";
+        }
+    }
+
+    function updateCelebration() {
+        const text = document.getElementById('celebrationInput').value;
+        if (text) {
+            document.getElementById('celebrationText').textContent = text;
+        }
+    }
+
+    // RSVP functionality
+    let acceptedCount = 0;
+    const maxGuests = 10;
+
+    // Load saved count from localStorage
+    if (localStorage.getItem('acceptedCount')) {
+        acceptedCount = parseInt(localStorage.getItem('acceptedCount'));
+        updateSpotsLeft();
+    }
+
+    function updateSpotsLeft() {
+        const spotsLeft = maxGuests - acceptedCount;
+        document.getElementById('spotsLeft').textContent = spotsLeft;
+        
+        if (spotsLeft <= 0) {
+            document.getElementById('acceptBtn').disabled = true;
+            document.getElementById('acceptBtn').textContent = '😔 Party is full!';
+            document.getElementById('acceptBtn').style.opacity = '0.5';
+        }
+    }
+
+    function submitRSVP(response) {
+        const form = document.getElementById('rsvpForm');
+        const childName = form.childName.value;
+        const parentName = form.parentName.value;
+        const phone = form.phone.value;
+        
+        // Check if all required fields are filled
+        if (!childName || !parentName || !phone) {
+            alert('Please fill in all required fields!');
+            return;
         }
 
-        function updateNameColor() {
-            const color = document.getElementById('nameColor').value;
-            document.getElementById('birthdayName').style.color = color;
+        // Check if party is full for accepts
+        if (response === 'accept' && acceptedCount >= maxGuests) {
+            alert('Sorry! The party is already full. You can still RSVP to be added to the waitlist.');
+            return;
         }
 
-        function updateTextColor() {
-            const color = document.getElementById('textColor').value;
-            document.getElementById('celebrationText').style.color = color;
-        }
-
-        function updateName() {
-            const name = document.getElementById('nameInput').value;
-            if (name) {
-                document.getElementById('birthdayName').textContent = name + "'s";
-            }
-        }
-
-        function updateCelebration() {
-            const text = document.getElementById('celebrationInput').value;
-            if (text) {
-                document.getElementById('celebrationText').textContent = text;
-            }
-        }
-
-        // RSVP functionality
-        let acceptedCount = 0;
-        const maxGuests = 10;
-
-        // Load saved count from localStorage
-        if (localStorage.getItem('acceptedCount')) {
-            acceptedCount = parseInt(localStorage.getItem('acceptedCount'));
+        // Set the response
+        document.getElementById('rsvpResponse').value = response;
+        
+        // Update counter for accepts
+        if (response === 'accept' && acceptedCount < maxGuests) {
+            acceptedCount++;
+            localStorage.setItem('acceptedCount', acceptedCount);
             updateSpotsLeft();
         }
 
-        function updateSpotsLeft() {
-            const spotsLeft = maxGuests - acceptedCount;
-            document.getElementById('spotsLeft').textContent = spotsLeft;
-            
-            if (spotsLeft <= 0) {
-                document.getElementById('acceptBtn').disabled = true;
-                document.getElementById('acceptBtn').textContent = '😔 Party is full!';
-                document.getElementById('acceptBtn').style.opacity = '0.5';
-            }
-        }
-
-       function submitRSVP(response) {
-    const form = document.getElementById('rsvpForm');
-    const formData = new FormData(form);
-    
-    // Check if all required fields are filled
-    if (!formData.get('childName') || !formData.get('parentName') || !formData.get('phone')) {
-        alert('Please fill in all required fields!');
-        return;
+        // Show confirmation before submitting
+        const confirmMsg = response === 'accept' ? 
+            `Thanks! Submitting RSVP for ${childName}. You'll be redirected to a confirmation page.` :
+            `Thanks for letting us know ${childName} can't make it. You'll be redirected to a confirmation page.`;
+        
+        alert(confirmMsg);
+        
+        // Submit the form to Formspree
+        form.submit();
     }
 
-    // Check if party is full for accepts
-    if (response === 'accept' && acceptedCount >= maxGuests) {
-        alert('Sorry! The party is already full. You can still RSVP to be added to the waitlist.');
-    }
-
-    // Set the response
-    document.getElementById('rsvpResponse').value = response;
-    
-    // Update counter for accepts
-    if (response === 'accept' && acceptedCount < maxGuests) {
-        acceptedCount++;
-        localStorage.setItem('acceptedCount', acceptedCount);
+    // Initialize when page loads
+    window.onload = function() {
         updateSpotsLeft();
-    }
-
-    // Actually submit the form to Formspree
-    form.submit();
-}
-            // For now, show confirmation
-            alert(`Thank you for your RSVP! We ${response === 'accept' ? 'can\'t wait to see you' : 'understand and hope to celebrate with you another time'}!`);
-            
-            // Reset form
-            form.reset();
-        }
-
-        // Initialize
-        updateSpotsLeft();
-    </script>
+    };
+</script>
+    
 </body>
 </html>
