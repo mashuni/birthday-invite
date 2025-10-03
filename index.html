@@ -363,32 +363,34 @@
             }
         }
 
-        function submitRSVP(response) {
-            const form = document.getElementById('rsvpForm');
-            const formData = new FormData(form);
-            
-            // Check if all required fields are filled
-            if (!formData.get('childName') || !formData.get('parentName') || !formData.get('phone')) {
-                alert('Please fill in all required fields!');
-                return;
-            }
+       function submitRSVP(response) {
+    const form = document.getElementById('rsvpForm');
+    const formData = new FormData(form);
+    
+    // Check if all required fields are filled
+    if (!formData.get('childName') || !formData.get('parentName') || !formData.get('phone')) {
+        alert('Please fill in all required fields!');
+        return;
+    }
 
-            // Check if party is full for accepts
-            if (response === 'accept' && acceptedCount >= maxGuests) {
-                alert('Sorry! The party is already full. You can still RSVP to be added to the waitlist.');
-            }
+    // Check if party is full for accepts
+    if (response === 'accept' && acceptedCount >= maxGuests) {
+        alert('Sorry! The party is already full. You can still RSVP to be added to the waitlist.');
+    }
 
-            // Set the response
-            document.getElementById('rsvpResponse').value = response;
-            
-            // Update counter for accepts
-            if (response === 'accept' && acceptedCount < maxGuests) {
-                acceptedCount++;
-                localStorage.setItem('acceptedCount', acceptedCount);
-                updateSpotsLeft();
-            }
+    // Set the response
+    document.getElementById('rsvpResponse').value = response;
+    
+    // Update counter for accepts
+    if (response === 'accept' && acceptedCount < maxGuests) {
+        acceptedCount++;
+        localStorage.setItem('acceptedCount', acceptedCount);
+        updateSpotsLeft();
+    }
 
-            // Submit form (you'll need to set up Formspree or similar)
+    // Actually submit the form to Formspree
+    form.submit();
+}
             // For now, show confirmation
             alert(`Thank you for your RSVP! We ${response === 'accept' ? 'can\'t wait to see you' : 'understand and hope to celebrate with you another time'}!`);
             
